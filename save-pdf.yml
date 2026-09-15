@@ -1,0 +1,30 @@
+name: Save Note
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_base64:
+        description: 'File in Base64'
+        required: true
+      filename:
+        description: 'Nome del file (es. nota.pdf)'
+        required: true
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decode and save file
+        run: |
+          echo "${{ github.event.inputs.file_base64 }}" | base64 --decode > "${{ github.event.inputs.filename }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add "${{ github.event.inputs.filename }}"
+          git commit -m "Add ${{ github.event.inputs.filename }}"
+          git push
